@@ -197,7 +197,10 @@ fi
 
 # --- Build prompt ---
 
-prompt="${task_text}${file_block}"
+prompt="$task_text"
+if [[ -n "$file_block" ]]; then
+  prompt+=$'\n'"$file_block"
+fi
 
 # --- Determine reasoning effort ---
 
@@ -294,7 +297,7 @@ fi
 
 # --- Extract thread_id ---
 
-thread_id="$(jq -r 'select(.type == "session.created") | .session.id' < "$json_file" 2>/dev/null | head -1)"
+thread_id="$(jq -r 'select(.type == "thread.started") | .thread_id' < "$json_file" 2>/dev/null | head -1)"
 
 # --- Build markdown output ---
 

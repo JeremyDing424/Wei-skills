@@ -114,7 +114,7 @@ fi
 # --- API Configuration ---
 base_url="${GOOGLE_GEMINI_BASE_URL:-https://linkapi.ai}"
 base_url="${base_url%/}"
-model="${GEMINI_MODEL:-gemini-3.1-pro-preview}"
+model="${GEMINI_MODEL:-gemini-2.0-flash}"
 
 # --- Resolve task text ---
 

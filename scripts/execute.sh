@@ -125,10 +125,10 @@ if [[ -z "$task_text" ]]; then
   usage; exit 1
 fi
 
-# --model is shared: inject into both partner arg arrays
+# --model: pass to Codex via flag; Gemini reads GEMINI_MODEL env var
 if [[ -n "$model_arg" ]]; then
   codex_args+=(--model "$model_arg")
-  gemini_args+=(--model "$model_arg")
+  export GEMINI_MODEL="$model_arg"
 fi
 
 # --- Weighted keyword auto-detection ---
