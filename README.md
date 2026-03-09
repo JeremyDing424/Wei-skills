@@ -100,39 +100,14 @@ sudo apt-get install curl jq
 
 ## 安装 ModelMesh
 
-### 方式一：通过 Claude Code Skill 插件安装（推荐）
+### 方式一：通过 Plugin Marketplace 安装（推荐）
 
-这是最简单的安装方式，通过 Claude Code 内置的 Skill 管理功能直接从本仓库安装。
-
-**第一步：在 Claude Code 中添加 skill-lookup 插件**
-
-在终端运行 Claude Code，输入以下命令安装 skill-lookup 插件（首次使用需要）：
-
-```bash
-claude
-```
-
-进入 Claude Code 后执行：
+在 Claude Code 中执行以下两行命令即可完成安装：
 
 ```
-/install-skills
+/plugin marketplace add JeremyDing424/ModelMesh
+/plugin install model-mesh@ModelMesh
 ```
-
-或直接通过设置添加 MCP 插件：
-
-```bash
-claude mcp add prompts-chat -- npx -y @anthropic-ai/mcp-server-prompts-chat
-```
-
-**第二步：通过插件安装 ModelMesh**
-
-在 Claude Code 中输入：
-
-```
-帮我安装 ModelMesh skill，地址是 https://github.com/JeremyDing424/ModelMesh
-```
-
-Claude 会自动拉取仓库内容并安装到 `~/.claude/skills/model-mesh/`。
 
 ---
 
