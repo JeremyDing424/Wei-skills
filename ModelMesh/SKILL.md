@@ -15,26 +15,31 @@ Route tasks to the right execution partner. When in doubt about which to use, co
 | Refactor, debug, fix bugs | Codex |
 | Write / update tests | Codex |
 | Code review or analysis | Codex |
-| HTML / web mockups | Gemini |
-| SVG icons / illustrations | Gemini |
-| Color palettes / typography | Gemini |
-| UI design feedback | Gemini |
+| **Modify existing files** (CSS, HTML, JS, any language) | **Codex** |
+| **Add CSS styles to an existing project** | **Codex** |
+| Create NEW HTML page / mockup from scratch | Gemini |
+| Create NEW SVG icons / illustrations | Gemini |
+| Color palettes / typography advice | Gemini |
+| UI design feedback (no code) | Gemini |
+
+**Critical routing rule**: If the task involves **modifying existing project files** — even if it's "just CSS" or "just styling" — always route to **Codex**. Gemini is only for creating brand-new standalone design artifacts (HTML files, SVGs) from scratch.
 
 **Ambiguous words** — these words alone don't determine the partner. Look at the full intent:
-- `form`, `button`, `page`, `component` → likely **Codex** if the task is about logic/validation/handlers
-- `form`, `button`, `page`, `component` → likely **Gemini** if the task is about appearance/layout/mockup
+- `CSS`, `style`, `color`, `button appearance` → **Codex** if modifying an existing file; **Gemini** if creating a new design artifact
+- `form`, `button`, `page`, `component` → **Codex** if about logic/validation/handlers or editing existing code
+- `form`, `button`, `page`, `component` → **Gemini** if creating a brand-new standalone mockup
 
 ---
 
 ## Script Location
 
 ```
-~/.claude/skills/model-mesh/scripts/execute.sh
+~/.claude/skills/ModelMesh/scripts/execute.sh
 ```
 
 Verify installation:
 ```bash
-~/.claude/skills/model-mesh/scripts/execute.sh --check
+~/.claude/skills/ModelMesh/scripts/execute.sh --check
 ```
 
 ---
@@ -45,7 +50,7 @@ Verify installation:
 - Only interact with Codex through the bundled `execute.sh` script. Never call `codex` CLI directly.
 - Run the script once per task. On success (exit 0), read the output file. Do NOT retry.
 - Keep the task prompt focused (~500 words max). Describe WHAT, not HOW.
-- Use `--file` to point Codex to key files — never paste file contents into the prompt.
+- **Do NOT use `--file`** — it adds the full file size to the context threshold and causes failures on large files. Instead, include the absolute file path directly in the prompt text. Codex will locate and read the file itself.
 
 ### Usage
 
@@ -53,10 +58,8 @@ Verify installation:
 # Minimal
 execute.sh "Your request"
 
-# With file context
-execute.sh "Refactor these components to use the new API" \
-  --file src/components/UserList.tsx \
-  --file src/components/UserDetail.tsx
+# With file context — include absolute path in the prompt, Codex will read it
+execute.sh "Refactor /project/src/components/UserList.tsx and /project/src/components/UserDetail.tsx to use the new API"
 
 # Multi-turn (continue previous session)
 execute.sh "Also add retry logic" --session <session_id>
@@ -75,7 +78,7 @@ Read `output_path` for Codex's response. Save `session_id` for follow-up calls.
 
 | Flag | Description |
 |------|-------------|
-| `--file <path>` | Key file(s) for context (repeatable) |
+| `--partner <codex\|gemini>` | Force specific partner (use when auto-detection mis-routes) |
 | `--workspace <path>` | Target workspace (default: current dir) |
 | `--session <id>` | Resume a previous conversation |
 | `--reasoning <level>` | `low` / `medium` / `high` (default: medium) |
@@ -87,17 +90,15 @@ Use `--reasoning high` for debugging, complex refactoring, or code review.
 ### Examples
 
 ```bash
-# Batch refactoring
-execute.sh "Convert all class components in src/components to functional components with hooks" \
-  --file src/components
+# Batch refactoring (include path in prompt, no --file needed)
+execute.sh "Convert all class components in /project/src/components to functional components with hooks"
 
 # Test writing
-execute.sh "Write unit tests for UserService covering all public methods and error cases" \
-  --file src/services/UserService.ts
+execute.sh "Write unit tests for UserService in /project/src/services/UserService.ts covering all public methods and error cases"
 
 # Bug fix
-execute.sh "Fix the memory leak in the WebSocket handler — listeners aren't cleaned up on disconnect." \
-  --file src/websocket/handler.ts --reasoning high
+execute.sh "Fix the memory leak in /project/src/websocket/handler.ts — listeners aren't cleaned up on disconnect." \
+  --reasoning high
 ```
 
 ---
@@ -165,9 +166,9 @@ execute.sh "B2B SaaS dashboard — suggest color palette, typography, and spacin
 
 ## Unified Workflow
 
-1. **Clarify** — Is it code or design? Check the Decision Matrix.
-2. **Prepare** — For Codex: identify key files. For Gemini: write a focused description.
-3. **Execute** — Run `execute.sh` with appropriate flags.
+1. **Clarify** — Is it code or design? Check the Decision Matrix. When in doubt, use `--partner codex`.
+2. **Prepare** — For Codex: include absolute file paths in the prompt text. For Gemini: write a focused description.
+3. **Execute** — Run `execute.sh` with appropriate flags. If auto-detection routes to the wrong partner, override with `--partner codex` or `--partner gemini`.
 4. **Review** — Read the output file. For Codex: check code changes. For Gemini: open the design file.
 5. **Iterate** — Use `--session` (Codex) or re-run with refinements (Gemini).
 
@@ -177,7 +178,7 @@ execute.sh "B2B SaaS dashboard — suggest color palette, typography, and spacin
 
 **`Command not found`**
 ```bash
-chmod +x ~/.claude/skills/model-mesh/scripts/execute.sh
+chmod +x ~/.claude/skills/ModelMesh/scripts/execute.sh
 ```
 
 **`Partner script not found`**

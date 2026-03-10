@@ -1,0 +1,25 @@
+# Runtime files
+.runtime/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+
+# Test outputs
+test-output/
+*.test.html
+*.test.svg

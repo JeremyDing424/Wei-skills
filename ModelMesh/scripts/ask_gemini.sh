@@ -151,9 +151,25 @@ if [[ -z "$api_key" && -f "$HOME/.config/gemini-designer/api_key" ]]; then
   api_key="$(cat "$HOME/.config/gemini-designer/api_key" | tr -d '[:space:]')"
 fi
 
+# ~/.gemini/.env fallback
+if [[ -z "$api_key" && -f "$HOME/.gemini/.env" ]]; then
+  _gemini_env="$HOME/.gemini/.env"
+  _found_key="$(grep -E '^GEMINI_API_KEY=' "$_gemini_env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '[:space:]')"
+  if [[ -n "$_found_key" ]]; then
+    api_key="$_found_key"
+    # Also load BASE_URL and MODEL from this file if not already set
+    if [[ -z "${GOOGLE_GEMINI_BASE_URL:-}" && -z "$cfg_base_url" ]]; then
+      cfg_base_url="$(grep -E '^GOOGLE_GEMINI_BASE_URL=' "$_gemini_env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '[:space:]')"
+    fi
+    if [[ -z "${GEMINI_MODEL:-}" && -z "$cfg_model" ]]; then
+      cfg_model="$(grep -E '^GEMINI_MODEL=' "$_gemini_env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '[:space:]')"
+    fi
+  fi
+fi
+
 if [[ -z "$api_key" ]]; then
   echo "[ERROR] No API key found." >&2
-  echo "Set GEMINI_API_KEY in env, .env.local, or $CONFIG_FILE" >&2
+  echo "Set GEMINI_API_KEY in env, .env.local, $CONFIG_FILE, or ~/.gemini/.env" >&2
   exit 1
 fi
 

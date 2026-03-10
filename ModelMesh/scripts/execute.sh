@@ -178,6 +178,49 @@ if [[ "$partner" == "auto" ]]; then
   echo "[INFO] Auto-detected partner: $partner" >&2
 fi
 
+# --- Context length check (Codex only) ---
+# Counts prompt chars + referenced file sizes.
+# Exits with code 2 if total exceeds threshold so Claude can warn the user.
+CONTEXT_THRESHOLD=6000
+
+check_context_length() {
+  local total=${#task_text}
+
+  # Add sizes of any --file arguments
+  local i=0
+  while [[ $i -lt ${#codex_args[@]} ]]; do
+    if [[ "${codex_args[$i]}" == "--file" ]]; then
+      local f="${codex_args[$((i+1))]}"
+      if [[ -f "$f" ]]; then
+        local fsize
+        fsize=$(wc -c < "$f" 2>/dev/null || echo 0)
+        (( total += fsize ))
+      fi
+      (( i += 2 ))
+    else
+      (( i += 1 ))
+    fi
+  done
+
+  if (( total > CONTEXT_THRESHOLD )); then
+    echo "" >&2
+    echo "╔════════════════════════════════════════════════════════╗" >&2
+    echo "║  ⚠️  CONTEXT TOO LONG — Codex may fail                ║" >&2
+    echo "╠════════════════════════════════════════════════════════╣" >&2
+    printf "║  Total chars: %-8d  Threshold: %-8d            ║\n" "$total" "$CONTEXT_THRESHOLD" >&2
+    echo "╠════════════════════════════════════════════════════════╣" >&2
+    echo "║  Suggestions:                                          ║" >&2
+    echo "║  1. Run /clear to reset conversation context           ║" >&2
+    echo "║  2. Run /compact to compress context                   ║" >&2
+    echo "║  3. Reduce --file arguments passed to Codex            ║" >&2
+    echo "╚════════════════════════════════════════════════════════╝" >&2
+    echo "CONTEXT_TOO_LONG: ${total} chars (threshold: ${CONTEXT_THRESHOLD})"
+    exit 2
+  fi
+
+  echo "[INFO] Context size OK: ${total} chars" >&2
+}
+
 # --- Execute with selected partner ---
 case "$partner" in
   codex)
@@ -186,6 +229,7 @@ case "$partner" in
       echo "       Run with --check to verify installation." >&2
       exit 1
     fi
+    check_context_length
     echo "[INFO] Executing with Codex..." >&2
     exec "$CODEX_SCRIPT" "$task_text" "${codex_args[@]+"${codex_args[@]}"}"
     ;;

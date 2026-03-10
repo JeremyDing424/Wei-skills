@@ -1,0 +1,4 @@
+# Enforce LF line endings for shell scripts on all platforms
+# This prevents CRLF issues when scripts are edited on Windows
+* text=auto
+*.sh text eol=lf
