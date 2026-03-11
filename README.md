@@ -44,20 +44,6 @@ git clone git@github.com:JeremyDing424/ModelMesh.git
 cp -r ModelMesh ~/.claude/skills/model-mesh
 ```
 
-### 赋予脚本执行权限
-
-```bash
-# macOS / Linux
-chmod +x ~/.claude/skills/model-mesh/scripts/execute.sh
-chmod +x ~/.claude/skills/model-mesh/scripts/ask_codex.sh
-chmod +x ~/.claude/skills/model-mesh/scripts/ask_gemini.sh
-
-# Windows（Git Bash）
-chmod +x ~/.claude/skills/model-mesh/scripts/execute.sh
-chmod +x ~/.claude/skills/model-mesh/scripts/ask_codex_windows.sh
-chmod +x ~/.claude/skills/model-mesh/scripts/ask_gemini.sh
-```
-
 ---
 
 ## 推荐配置
