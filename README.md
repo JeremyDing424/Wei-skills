@@ -6,19 +6,7 @@
 
 ## 前置准备
 
-### 1. 安装 Claude Code CLI
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-验证安装：
-
-```bash
-claude --version
-```
-
-### 2. 安装 Codex CLI
+### 1. 安装 Codex CLI
 
 Codex 是代码执行伙伴，负责处理编码、重构、测试等任务。
 
@@ -34,9 +22,11 @@ codex --version
 
 > 参考：[Codex 官方文档](https://github.com/openai/codex)
 
-### 3. 配置 Gemini API Key
+### 2. 配置 Gemini API Key
 
 Gemini Designer 是设计执行伙伴，负责 UI 设计、SVG 图标、HTML 原型等任务。
+
+> **推荐使用 [cc-switch](https://github.com/farion1231/cc-switch) 管理 API Key**，支持多账号切换，配置更便捷。
 
 获取 API Key 后，选择以下任意一种方式配置：
 
@@ -71,7 +61,7 @@ echo "your-api-key-here" > ~/.config/gemini-designer/api_key
 echo 'GEMINI_API_KEY=your-api-key-here' > .env.local
 ```
 
-### 4. 安装依赖工具
+### 3. 安装依赖工具
 
 ```bash
 # macOS
@@ -84,34 +74,20 @@ sudo apt-get install curl jq
 # curl 通常已内置，jq 需手动下载：https://jqlang.github.io/jq/download/
 ```
 
-### 5. 环境要求汇总
+### 4. 环境要求汇总
 
 | 工具 | 最低要求 | 说明 |
 |------|----------|------|
 | Bash | 4.0+ | macOS/Linux 原生，Windows 需 Git Bash |
-| Node.js | 18+ | Claude Code 和 Codex 依赖 |
+| Node.js | 18+ | Codex 依赖 |
 | curl | 任意版本 | HTTP 请求 |
 | jq | 1.6+ | JSON 解析（Gemini 必需） |
-| Claude Code CLI | 最新版 | 核心工具 |
 | Codex CLI | 最新版 | 代码执行伙伴 |
 | Gemini API Key | — | 设计执行伙伴认证 |
 
 ---
 
 ## 安装 ModelMesh
-
-### 方式一：通过 Plugin Marketplace 安装（推荐）
-
-在 Claude Code 中执行以下两行命令即可完成安装：
-
-```
-/plugin marketplace add JeremyDing424/ModelMesh
-/plugin install model-mesh@ModelMesh
-```
-
----
-
-### 方式二：手动安装
 
 ### 克隆仓库
 
@@ -137,6 +113,47 @@ chmod +x ~/.claude/skills/model-mesh/scripts/ask_gemini.sh
 chmod +x ~/.claude/skills/model-mesh/scripts/execute.sh
 chmod +x ~/.claude/skills/model-mesh/scripts/ask_codex_windows.sh
 chmod +x ~/.claude/skills/model-mesh/scripts/ask_gemini.sh
+```
+
+---
+
+## 推荐配置
+
+为了让 Claude 在每次对话中都能正确使用 ModelMesh，建议将以下内容添加到 `~/.claude/CLAUDE.md`：
+
+```markdown
+## 编程任务分工规则
+
+- **编程、文件编写、代码修改**：一律交给 Codex 执行（通过 ModelMesh skill 调用）
+- **Claude 的职责**：分析需求、思考方案、拆解任务、分配给 Codex
+- Claude 不直接修改代码文件，只负责理解和调度
+
+## Gemini 调用规则
+
+- **设计任务**（UI 设计、HTML 原型、SVG 图标、色彩方案）：通过 ModelMesh skill 路由到 Gemini
+- 触发词：`design a`、`design the`、`mockup`、`landing page`、`color palette`、`icon`、`svg`
+- 若任务同时涉及代码（如修改已有 CSS/HTML 文件），优先路由到 Codex
+- 仅在创建**全新独立设计文件**时使用 Gemini
+```
+
+写入命令（一键执行）：
+
+```bash
+cat >> ~/.claude/CLAUDE.md << 'EOF'
+
+## 编程任务分工规则
+
+- **编程、文件编写、代码修改**：一律交给 Codex 执行（通过 ModelMesh skill 调用）
+- **Claude 的职责**：分析需求、思考方案、拆解任务、分配给 Codex
+- Claude 不直接修改代码文件，只负责理解和调度
+
+## Gemini 调用规则
+
+- **设计任务**（UI 设计、HTML 原型、SVG 图标、色彩方案）：通过 ModelMesh skill 路由到 Gemini
+- 触发词：`design a`、`design the`、`mockup`、`landing page`、`color palette`、`icon`、`svg`
+- 若任务同时涉及代码（如修改已有 CSS/HTML 文件），优先路由到 Codex
+- 仅在创建**全新独立设计文件**时使用 Gemini
+EOF
 ```
 
 ---
@@ -219,8 +236,6 @@ execute.sh "Implement login" --partner gemini --html
 ---
 
 ## 关键词路由规则
-
-脚本通过分析任务描述中的关键词来自动路由：
 
 脚本使用**加权评分**机制，Score > 0 路由到 Gemini，否则路由到 Codex：
 
