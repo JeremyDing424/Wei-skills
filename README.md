@@ -26,64 +26,7 @@ codex --version
 
 Gemini Designer 是设计执行伙伴，负责 UI 设计、SVG 图标、HTML 原型等任务。
 
-> **推荐使用 [cc-switch](https://github.com/farion1231/cc-switch) 管理 API Key**，支持多账号切换，配置更便捷。
-
-获取 API Key 后，选择以下任意一种方式配置：
-
-**方式一：环境变量（推荐）**
-
-```bash
-export GEMINI_API_KEY="your-api-key-here"
-```
-
-永久生效（写入 shell 配置文件）：
-
-```bash
-# Zsh 用户
-echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.zshrc
-source ~/.zshrc
-
-# Bash 用户
-echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**方式二：配置文件**
-
-```bash
-mkdir -p ~/.config/gemini-designer
-echo "your-api-key-here" > ~/.config/gemini-designer/api_key
-```
-
-**方式三：项目 .env.local 文件**
-
-```bash
-echo 'GEMINI_API_KEY=your-api-key-here' > .env.local
-```
-
-### 3. 安装依赖工具
-
-```bash
-# macOS
-brew install curl jq
-
-# Ubuntu / Debian
-sudo apt-get install curl jq
-
-# Windows (Git Bash)
-# curl 通常已内置，jq 需手动下载：https://jqlang.github.io/jq/download/
-```
-
-### 4. 环境要求汇总
-
-| 工具 | 最低要求 | 说明 |
-|------|----------|------|
-| Bash | 4.0+ | macOS/Linux 原生，Windows 需 Git Bash |
-| Node.js | 18+ | Codex 依赖 |
-| curl | 任意版本 | HTTP 请求 |
-| jq | 1.6+ | JSON 解析（Gemini 必需） |
-| Codex CLI | 最新版 | 代码执行伙伴 |
-| Gemini API Key | — | 设计执行伙伴认证 |
+**推荐使用 [cc-switch](https://github.com/farion1231/cc-switch) 管理 API Key**，支持多账号切换，配置更便捷。
 
 ---
 
